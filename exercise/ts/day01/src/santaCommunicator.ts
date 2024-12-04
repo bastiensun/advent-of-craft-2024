@@ -1,52 +1,34 @@
 import { Logger } from "./logger";
+import { Reindeer } from "./reindeer";
+import { Configuration } from "./configuration";
 
 export class SantaCommunicator {
-  private readonly numberOfDaysToRest: number;
+  private readonly configuration: Configuration;
 
-  constructor(numberOfDaysToRest: number) {
-    this.numberOfDaysToRest = numberOfDaysToRest;
+  constructor(configuration: Configuration) {
+    this.configuration = configuration;
   }
 
-  public composeMessage(
-    reindeerName: string,
-    currentLocation: string,
-    numbersOfDaysForComingBack: number,
-    numberOfDaysBeforeChristmas: number,
-  ): string {
+  public composeMessage(reindeer: Reindeer): string {
     const daysBeforeReturn = this.daysBeforeReturn(
-      numbersOfDaysForComingBack,
-      numberOfDaysBeforeChristmas,
+      reindeer.numbersOfDaysForComingBack,
     );
-    return `Dear ${reindeerName}, please return from ${currentLocation} in ${daysBeforeReturn} day(s) to be ready and rest before Christmas.`;
+    return `Dear ${reindeer.name}, please return from ${reindeer.location} in ${daysBeforeReturn} day(s) to be ready and rest before Christmas.`;
   }
 
-  public isOverdue(
-    reindeerName: string,
-    currentLocation: string,
-    numbersOfDaysForComingBack: number,
-    numberOfDaysBeforeChristmas: number,
-    logger: Logger,
-  ): boolean {
-    if (
-      this.daysBeforeReturn(
-        numbersOfDaysForComingBack,
-        numberOfDaysBeforeChristmas,
-      ) <= 0
-    ) {
-      logger.log(`Overdue for ${reindeerName} located ${currentLocation}.`);
+  public isOverdue(reindeer: Reindeer, logger: Logger): boolean {
+    if (this.daysBeforeReturn(reindeer.numbersOfDaysForComingBack) <= 0) {
+      logger.log(`Overdue for ${reindeer.name} located ${reindeer.location}.`);
       return true;
     }
     return false;
   }
 
-  private daysBeforeReturn(
-    numbersOfDaysForComingBack: number,
-    numberOfDaysBeforeChristmas: number,
-  ): number {
+  private daysBeforeReturn(numbersOfDaysForComingBack: number): number {
     return (
-      numberOfDaysBeforeChristmas -
+      this.configuration.numberOfDaysBeforeChristmas -
       numbersOfDaysForComingBack -
-      this.numberOfDaysToRest
+      this.configuration.numberOfDaysToRest
     );
   }
 }

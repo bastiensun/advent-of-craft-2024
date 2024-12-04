@@ -1,27 +1,24 @@
 import { SantaCommunicator } from "../src/santaCommunicator";
 import { TestLogger } from "./doubles/testLogger";
+import { Reindeer } from "../src/reindeer";
+import { Configuration } from "../src/configuration";
 
-const SantaCommunicatorSpec = "Dasher";
-const NORTH_POLE = "North Pole";
 const numberOfDaysToRest = 2;
-const numberOfDayBeforeChristmas = 24;
+const numberOfDaysBeforeChristmas = 24;
 
 describe("SantaCommunicator", () => {
   let communicator: SantaCommunicator;
   let logger: TestLogger;
 
   beforeEach(() => {
-    communicator = new SantaCommunicator(numberOfDaysToRest);
+    communicator = new SantaCommunicator(
+      new Configuration(numberOfDaysToRest, numberOfDaysBeforeChristmas),
+    );
     logger = new TestLogger();
   });
 
   test("composeMessage", () => {
-    const message = communicator.composeMessage(
-      SantaCommunicatorSpec,
-      NORTH_POLE,
-      5,
-      numberOfDayBeforeChristmas,
-    );
+    const message = communicator.composeMessage(reindeer(5));
     expect(message).toEqual(
       "Dear Dasher, please return from North Pole in 17 day(s) to be ready and rest before Christmas.",
     );
@@ -29,10 +26,7 @@ describe("SantaCommunicator", () => {
 
   test("shouldDetectOverdueReindeer", () => {
     const overdue = communicator.isOverdue(
-      SantaCommunicatorSpec,
-      NORTH_POLE,
-      numberOfDayBeforeChristmas,
-      numberOfDayBeforeChristmas,
+      reindeer(numberOfDaysBeforeChristmas),
       logger,
     );
 
@@ -42,12 +36,13 @@ describe("SantaCommunicator", () => {
 
   test("shouldReturnFalseWhenNoOverdue", () => {
     const overdue = communicator.isOverdue(
-      SantaCommunicatorSpec,
-      NORTH_POLE,
-      numberOfDayBeforeChristmas - numberOfDaysToRest - 1,
-      numberOfDayBeforeChristmas,
+      reindeer(numberOfDaysBeforeChristmas - numberOfDaysToRest - 1),
+
       logger,
     );
     expect(overdue).toBeFalsy();
   });
+  function reindeer(numbersOfDaysForComingBack: number): Reindeer {
+    return new Reindeer("Dasher", "North Pole", numbersOfDaysForComingBack);
+  }
 });
